@@ -1,6 +1,6 @@
 ! Copyright (C) 2008
 ! See http://factorcode.org/license.txt for BSD license.
-USING: la sequences opengl opengl.gl kernel ui ui.gadgets.cartesian accessors combinators math math.functions combinators.cleave arrays ;
+USING: la sequences opengl opengl.gl opengl.demo-support kernel ui ui.gadgets.cartesian accessors combinators math math.functions combinators.cleave arrays ;
 IN: turtle
 
 TUPLE: turtle loc path ;

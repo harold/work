@@ -1,6 +1,6 @@
 ! Copyright (C) 2008
 ! See http://factorcode.org/license.txt for BSD license.
-USING: opengl opengl.gl ui ui.gadgets.cartesian kernel accessors math random freeimage byte-arrays fry ;
+USING: opengl opengl.gl opengl.demo-support ui ui.gadgets.cartesian kernel accessors math random freeimage byte-arrays fry ;
 IN: tile
 
 : (get-image) ( path -- width height bits )
@@ -40,7 +40,7 @@ IN: tile
     GL_TEXTURE_2D GL_TEXTURE_WRAP_S GL_CLAMP glTexParameterf
     GL_TEXTURE_2D GL_TEXTURE_WRAP_T GL_CLAMP glTexParameterf
     
-    "castle.png"
+    "UV-Checker2.png"
     (get-image)
     '[
         GL_TEXTURE_2D
@@ -49,7 +49,7 @@ IN: tile
         _
         _
         0
-        GL_RGBA
+        GL_BGRA
         GL_UNSIGNED_BYTE
         _
     ] call
@@ -59,13 +59,13 @@ IN: tile
     GL_QUADS
         [
              0    1   glTexCoord2i
-            -100 -100 glVertex2d 
+            -200 -200 glVertex2d 
              0    0   glTexCoord2i
-            -100  100 glVertex2d 
+            -200  200 glVertex2d 
              1    0   glTexCoord2i
-             100  100 glVertex2d 
+             200  200 glVertex2d 
              1    1   glTexCoord2i
-             100 -100 glVertex2d 
+             200 -200 glVertex2d 
         ] do-state ;
 
 : <tile-window> ( -- gadget )
