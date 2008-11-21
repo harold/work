@@ -4,6 +4,7 @@ USING: opengl opengl.gl opengl.demo-support ui ui.gadgets.cartesian kernel acces
 IN: tile
 
 : tile-test ( -- )
+    <texture-cache>
     0 0 0 1 glClearColor GL_COLOR_BUFFER_BIT glClear
 
     "UV-Checker2.png" load-texture GL_TEXTURE_2D swap glBindTexture
@@ -23,7 +24,6 @@ IN: tile
         ] do-state ;
 
 : <tile-window> ( -- gadget )
-    <texture-cache>
     <cartesian>
         {  600 600 } >>pdim
         { -300 300 } x-range

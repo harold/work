@@ -4,7 +4,7 @@ USING: namespaces assocs kernel prettyprint freeimage opengl opengl.gl math byte
 IN: texturecache
 
 SYMBOL: texture-cache-variable
-: <texture-cache> ( -- ) H{ } texture-cache-variable set-global ;
+: <texture-cache> ( -- ) H{ } clone texture-cache-variable set-global ;
 : texture-cache ( -- texture-cache ) texture-cache-variable get-global ;
 
 : (load-texture) ( path -- )
