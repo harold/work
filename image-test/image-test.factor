@@ -4,7 +4,7 @@ USING: ui image ;
 IN: image-test
 
 : <image-test-window> ( -- gadget )
-    "UV-Checker2.png" <image2> ;
+    "UV-Checker2.png" <image> ;
 
 : image-test-window ( -- )
     [ <image-test-window> "image-test" open-window ] with-ui ;

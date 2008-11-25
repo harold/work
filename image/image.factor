@@ -1,10 +1,11 @@
 ! Copyright (C) 2008 _hrrld.
 ! See http://factorcode.org/license.txt for BSD license.
-USING: assocs bake.fry random byte-arrays freeimage kernel math opengl
-opengl.gl ui.gadgets accessors combinators.cleave ui.render opengl.demo-support ;
+USING: accessors byte-arrays combinators fry kernel math opengl
+opengl.gl ui.gadgets ui.render freeimage combinators.cleave prettyprint 
+ui.gadgets.worlds arrays sequences alien.c-types ;
 IN: image
 
-TUPLE: image < gadget width height id ;
+TUPLE: image < gadget width height bytes id ;
 
 : (set-default-image-sampling) ( -- )
     GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR glTexParameteri
@@ -14,11 +15,7 @@ TUPLE: image < gadget width height id ;
 
 : <image> ( path -- image )
     image new-gadget
-    GL_TEXTURE_2D glEnable
-    GL_TEXTURE_2D gen-texture [ glBindTexture ] keep >>id
     
-    (set-default-image-sampling)
-
     swap
     [ _FreeImage_GetFIFFromFilename ] keep 0 _FreeImage_Load
     _FreeImage_ConvertTo32Bits
@@ -33,61 +30,48 @@ TUPLE: image < gadget width height id ;
         HEX: 000000FF 
         t
         _FreeImage_ConvertToRawBits 
-    ] 3keep drop swap
+    ] 3keep drop nip >>bytes ;
     
-    [ width>> ] [ height>> ] bi rot
-
-    '[
-        GL_TEXTURE_2D
-        0
-        GL_RGBA8
-        _
-        _
-        0
-        GL_BGRA
-        GL_UNSIGNED_BYTE
-        _
-    ] call
-    glTexImage2D ;
-
-: <image2> ( path -- image )
-    image new-gadget
-    GL_TEXTURE_2D glEnable
-    GL_TEXTURE_2D gen-texture [ glBindTexture ] keep >>id
-    512 >>width 512 >>height
-    
-    (set-default-image-sampling)
-
-    swap drop
-    512 512 512 512 * 4 * random-bytes >byte-array
-    '[
-        GL_TEXTURE_2D
-        0
-        GL_RGBA8
-        _
-        _
-        0
-        GL_BGRA
-        GL_UNSIGNED_BYTE
-        _
-    ] call
-    glTexImage2D ;
-
 M: image pref-dim* ( gadget -- dim )
     { [ width>> ] [ height>> ] } 1arr ;
 
-M: image draw-gadget* ( gadget -- )
-    id>> GL_TEXTURE_2D swap glBindTexture
+M: image graft* ( gadget -- ) 
+    dup find-gl-context
     GL_TEXTURE_2D glEnable
+    GL_TEXTURE_2D gen-texture [ glBindTexture ] keep >>id
+    
+    (set-default-image-sampling)
+
+    [ width>> ] [ height>> ] [ bytes>> ] tri
+    '[
+        GL_TEXTURE_2D
+        0
+        GL_RGBA8
+        _
+        _
+        0
+        GL_BGRA
+        GL_UNSIGNED_BYTE
+        _
+    ] call
+    glTexImage2D ;
+    
+M: image ungraft* ( gadget -- ) id>> 1array [ length ] [ >c-int-array ] bi glDeleteTextures ;
+
+M: image draw-gadget* ( gadget -- )
+    GL_TEXTURE_2D glEnable
+    GL_TEXTURE_2D over id>> glBindTexture
+
     1 1 1 1 glColor4d
-    GL_QUADS
-        [
-             0    1   glTexCoord2i
-             0    0   glVertex2d 
-             0    0   glTexCoord2i
-             0    384 glVertex2d 
-             1    0   glTexCoord2i
-             384  384 glVertex2d 
-             1    1   glTexCoord2i
-             384  0   glVertex2d 
-        ] do-state ;
+    GL_QUADS glBegin
+    { [ height>> ] [ width>> ] [ height>> ] [ width>> ] } cleave
+    '[
+        0   0   glTexCoord2i
+        0   0   glVertex2d 
+        0   1   glTexCoord2i
+        0   _   glVertex2d 
+        1   1   glTexCoord2i
+        _   _   glVertex2d 
+        1   0   glTexCoord2i
+        _   0   glVertex2d 
+    ] call glEnd ;
